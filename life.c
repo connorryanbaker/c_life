@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define NUM_ROWS 80
-#define BLUE "\x1B[36m"
+#include <unistd.h>
+#define NUM_ROWS 100 
 struct cell {
     int row;
     int col;
@@ -9,9 +9,9 @@ struct cell {
                 
 };
 
-void setup_grid(struct cell **, int);
-void print_grid(struct cell **, int);
-void teardown_grid(struct cell **, int);
+void setup_grid(struct cell **);
+void print_grid(struct cell **);
+void teardown_grid(struct cell **);
 void determine_next_gen(struct cell **);
 struct cell ** copy_grid(struct cell **);
 int legal_pos(int, int);
@@ -20,15 +20,15 @@ int total_living_neighbors(struct cell **, int, int);
 int main(void) {
     int i = 0;
     struct cell ** grid = (struct cell **) malloc(NUM_ROWS * sizeof(struct cell *));
-    setup_grid(grid, NUM_ROWS);
-    while (i < 1000) {
-        print_grid(grid, NUM_ROWS);
+    setup_grid(grid);
+    while (i < 250) {
+        print_grid(grid);
         determine_next_gen(grid);
+        usleep(75000);
         system("clear");
         i++;
-                                            
     }
-    teardown_grid(grid, NUM_ROWS);
+    teardown_grid(grid);
 
     return 0;
                         
@@ -82,10 +82,10 @@ void determine_next_gen(struct cell ** grid) {
     free(copy);
 }
 
-void setup_grid(struct cell ** grid, int len) {
-    for (int i = 0; i < len; i++) {
-        grid[i] = (struct cell *) malloc(sizeof(struct cell) * len);
-        for (int j = 0; j < len; j++) {
+void setup_grid(struct cell ** grid) {
+    for (int i = 0; i < NUM_ROWS; i++) {
+        grid[i] = (struct cell *) malloc(sizeof(struct cell) * NUM_ROWS);
+        for (int j = 0; j < NUM_ROWS; j++) {
             grid[i][j].row = i;
             grid[i][j].col = j;
             grid[i][j].alive = rand() % 2;
@@ -93,21 +93,21 @@ void setup_grid(struct cell ** grid, int len) {
     }
 }
 
-void print_grid(struct cell ** grid, int len) {
-    for (int i = 0; i < len; i++) {
-        for (int j = 0; j < len; j++) {
+void print_grid(struct cell ** grid) {
+    for (int i = 0; i < NUM_ROWS; i++) {
+        for (int j = 0; j < NUM_ROWS; j++) {
             if (grid[i][j].alive) {
-                printf("%s $ ", BLUE);
+                printf(":");
             } else {
-                printf("   ");
+                printf(" ");
             }
         }
         printf("\n");
     }
 }
 
-void teardown_grid(struct cell ** grid, int len) {
-    for (int i = 0; i < len; i++) {
+void teardown_grid(struct cell ** grid) {
+    for (int i = 0; i < NUM_ROWS; i++) {
         free(grid[i]);
     }
     free(grid);
