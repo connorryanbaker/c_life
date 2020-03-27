@@ -5,8 +5,7 @@
 struct cell {
     int row;
     int col;
-    int alive;
-                
+    int alive;               
 };
 
 void setup_grid(struct cell **);
@@ -16,7 +15,6 @@ void determine_next_gen(struct cell **);
 struct cell ** copy_grid(struct cell **);
 int legal_pos(int, int);
 int total_living_neighbors(struct cell **, int, int);
-
 int main(void) {
     int i = 0;
     struct cell ** grid = (struct cell **) malloc(NUM_ROWS * sizeof(struct cell *));
@@ -29,9 +27,7 @@ int main(void) {
         i++;
     }
     teardown_grid(grid);
-
-    return 0;
-                        
+    return 0;                        
 }
 
 struct cell ** copy_grid(struct cell ** grid) {
@@ -44,14 +40,12 @@ struct cell ** copy_grid(struct cell ** grid) {
             copy[i][j].alive = grid[i][j].alive;
         }
     }
-    return copy;
-            
+    return copy;            
 }
 
 int legal_pos(int row, int col) {
     if (row >= 0 && row < NUM_ROWS && col >= 0 && col < NUM_ROWS) return 1;
-    return 0;
-            
+    return 0;            
 }
 
 int total_living_neighbors(struct cell ** copy, int row, int col) {
