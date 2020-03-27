@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define NUM_ROWS 60
+#define NUM_ROWS 80
 #define BLUE "\x1B[36m"
 struct cell {
     int row;
     int col;
     int alive;
+                
 };
 
 void setup_grid(struct cell **, int);
@@ -14,18 +15,23 @@ void teardown_grid(struct cell **, int);
 void determine_next_gen(struct cell **);
 struct cell ** copy_grid(struct cell **);
 int legal_pos(int, int);
+int total_living_neighbors(struct cell **, int, int);
+
 int main(void) {
     int i = 0;
     struct cell ** grid = (struct cell **) malloc(NUM_ROWS * sizeof(struct cell *));
     setup_grid(grid, NUM_ROWS);
-    while (i < 10000) {
-      print_grid(grid, NUM_ROWS);
-      determine_next_gen(grid);
-      i++;
+    while (i < 1000) {
+        print_grid(grid, NUM_ROWS);
+        determine_next_gen(grid);
+        system("clear");
+        i++;
+                                            
     }
     teardown_grid(grid, NUM_ROWS);
 
     return 0;
+                        
 }
 
 struct cell ** copy_grid(struct cell ** grid) {
@@ -39,40 +45,38 @@ struct cell ** copy_grid(struct cell ** grid) {
         }
     }
     return copy;
+            
 }
 
 int legal_pos(int row, int col) {
     if (row >= 0 && row < NUM_ROWS && col >= 0 && col < NUM_ROWS) return 1;
     return 0;
+            
+}
+
+int total_living_neighbors(struct cell ** copy, int row, int col) {
+    int deltas[8][2] = { {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}  };
+    int total_living_neighbors = 0;
+    for (int k = 0; k < 8; k++) {
+        int neighbor_row = row + deltas[k][0];
+        int neighbor_col = col + deltas[k][1];
+        if (legal_pos(neighbor_row, neighbor_col)) {
+            if (copy[neighbor_row][neighbor_col].alive) total_living_neighbors++;
+        }
+    }
+    return total_living_neighbors;
 }
 
 void determine_next_gen(struct cell ** grid) {
     struct cell ** copy = copy_grid(grid);
-    //do work
-    int deltas[8][2] = { {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1} };
     for (int i = 0; i < NUM_ROWS; i++) {
         for (int j = 0; j < NUM_ROWS; j++) {
-            int total_living_neighbors = 0;
-            // todo refactor this to own fn
-            for (int k = 0; k < 8; k++) {
-                int neighbor_row = i + deltas[k][0];
-                int neighbor_col = j + deltas[k][1];
-                if (legal_pos(neighbor_row, neighbor_col)) {
-                    if (copy[neighbor_row][neighbor_col].alive) {
-                        total_living_neighbors++;
-                    }
-                }
-            }
+            int total_live_neighbors = total_living_neighbors(copy, i, j);
             if (grid[i][j].alive) {
-                if (total_living_neighbors < 2 || total_living_neighbors > 3) {
-                    grid[i][j].alive = 0;
-                }
+                if (total_live_neighbors < 2 || total_live_neighbors > 3) grid[i][j].alive = 0;
             } else {
-                if (total_living_neighbors == 3) {
-                    grid[i][j].alive = 1;
-                }
+                if (total_live_neighbors == 3) grid[i][j].alive = 1;
             }
-            total_living_neighbors = 0;
         }
     }
     free(copy);
